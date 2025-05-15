@@ -3,7 +3,6 @@ package com.example.demo.domain.hamburger_ingredients;
 import com.example.demo.domain.hamburger.Hamburger;
 import com.example.demo.domain.ingredient.Ingredient;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,7 +26,6 @@ import lombok.Setter;
 public class HamburgerIngredients {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="hamburger_ingredients_id")
     private String hamburger_ingredients_id;
 
     @ManyToOne

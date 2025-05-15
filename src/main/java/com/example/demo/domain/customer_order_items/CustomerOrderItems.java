@@ -4,7 +4,6 @@ import com.example.demo.domain.customer_order.CustomerOrder;
 import com.example.demo.domain.drink.Drink;
 import com.example.demo.domain.hamburger.Hamburger;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

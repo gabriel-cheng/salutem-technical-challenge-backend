@@ -8,7 +8,6 @@ import com.example.demo.domain.customer.Customer;
 import com.example.demo.domain.customer_order_items.CustomerOrderItems;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
