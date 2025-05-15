@@ -36,6 +36,8 @@ public class HamburgerIngredients {
     @JoinColumn(name="ingredient_id")
     private Ingredient ingredient;
 
+    private int quantity;
+
     public HamburgerIngredients(
         RequestHamburgerIngredients requestHamburgerIngredients
     ) {
