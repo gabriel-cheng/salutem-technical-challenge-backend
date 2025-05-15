@@ -29,12 +29,19 @@ public class CustomerController {
 
     @GetMapping
     public ResponseEntity<List<Customer>> getAllCustomers() {
-        return ResponseUtils.getListResponse(customerRepository::findAll, "customer");
+        return ResponseUtils.getListResponse(
+            customerRepository::findAll,
+            "Customer"
+        );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Customer> getOneCustomer(@PathVariable String id) throws ResourceNotFoundException {
-        return ResponseUtils.getOneResponse(id, customerRepository::findById, "customer");
+        return ResponseUtils.getOneResponse(
+            id,
+            customerRepository::findById,
+            "Customer"
+        );
     }
 
     @PostMapping
@@ -63,7 +70,7 @@ public class CustomerController {
                 entity.setCell(request.cell());
             },
             customerRepository::save,
-            "category",
+            "Customer",
             id
         );
     }
