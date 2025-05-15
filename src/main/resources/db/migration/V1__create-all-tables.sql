@@ -18,8 +18,7 @@ CREATE TABLE hamburger(
     hamburger_id TEXT PRIMARY KEY UNIQUE NOT NULL,
     code TEXT NOT NULL,
     description TEXT NOT NULL,
-    unity_price FLOAT NOT NULL,
-    additional_flag TEXT NOT NULL
+    unity_price FLOAT NOT NULL
 );
 
 CREATE TABLE customer(
