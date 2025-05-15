@@ -29,7 +29,6 @@ import lombok.Setter;
 public class Customer {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="customer_id")
     private String customer_id;
 
     private String name;

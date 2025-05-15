@@ -45,6 +45,7 @@ CREATE TABLE customer_order(
     description TEXT NOT NULL,
     observation TEXT NOT NULL,
     customer_id TEXT NOT NULL,
+    created_at DATE NOT NULL,
     CONSTRAINT fk_customer FOREIGN KEY(customer_id)
     REFERENCES customer(customer_id)
 );

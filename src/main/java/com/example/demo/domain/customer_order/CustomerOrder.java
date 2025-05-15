@@ -1,5 +1,6 @@
 package com.example.demo.domain.customer_order;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,6 @@ import lombok.Setter;
 public class CustomerOrder {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="customer_order_id")
     private String customer_order_id;
 
     private String code;
@@ -40,6 +40,8 @@ public class CustomerOrder {
     private String description;
 
     private String observation;
+
+    private LocalDateTime created_at;
 
     @ManyToOne
     @JoinColumn(name="customer_id")
@@ -52,6 +54,7 @@ public class CustomerOrder {
         this.code = requestCustomerOrder.code();
         this.description = requestCustomerOrder.description();
         this.observation = requestCustomerOrder.observation();
+        this.created_at = requestCustomerOrder.created_at();
     }
 
 }

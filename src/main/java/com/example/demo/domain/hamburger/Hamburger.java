@@ -22,7 +22,6 @@ import lombok.Setter;
 public class Hamburger {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="hamburger_id")
     private String hamburger_id;
 
     private String code;
@@ -31,13 +30,10 @@ public class Hamburger {
 
     private double unity_price;
 
-    private String additional_flag;
-
     public Hamburger(RequestHamburger requestHamburger) {
         this.code = requestHamburger.code();
         this.description = requestHamburger.description();
         this.unity_price = requestHamburger.unity_price();
-        this.additional_flag = requestHamburger.additional_flag();
     }
 
 }

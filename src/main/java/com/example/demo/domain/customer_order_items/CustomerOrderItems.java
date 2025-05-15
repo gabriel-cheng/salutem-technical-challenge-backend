@@ -28,7 +28,6 @@ import lombok.Setter;
 public class CustomerOrderItems {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="customer_order_items_id")
     private String customer_order_items_id;
 
     @ManyToOne

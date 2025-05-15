@@ -22,7 +22,6 @@ import lombok.Setter;
 public class Ingredient {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="ingredient_id")
     private String ingredient_id;
 
     private String code;
