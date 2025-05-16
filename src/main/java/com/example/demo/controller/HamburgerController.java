@@ -93,7 +93,6 @@ public class HamburgerController {
                 
                 ingredientRelations.add(relation);
             }
-            
 
             hamburgerRepository.save(newHamburger);
 
@@ -110,23 +109,23 @@ public class HamburgerController {
         }
     }
 
-        @PutMapping("/{id}")
-        public ResponseEntity<String> updateHamburger(
-            @PathVariable String id,
-            @RequestBody @Validated RequestHamburger request
-        ) {
-            try {
-                hamburgerService.updateHamburger(id, request);
-                return ResponseEntity.ok("Hamburger updated successfully!");
-            } catch (ResourceNotFoundException ex) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-            } catch (IllegalArgumentException ex) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-            } catch (Exception ex) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("An unexpected error occurred. Please, try again later!");
-            }
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateHamburger(
+        @PathVariable String id,
+        @RequestBody @Validated RequestHamburger hamburger
+    ) {
+        try {
+            hamburgerService.updateHamburger(id, hamburger);
+            return ResponseEntity.ok("Hamburger updated successfully!");
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred. Please, try again later!");
         }
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteHamburger(@PathVariable String id) throws ResourceNotFoundException {
