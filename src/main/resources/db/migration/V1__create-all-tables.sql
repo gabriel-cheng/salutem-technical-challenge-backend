@@ -42,7 +42,7 @@ CREATE TABLE customer_order(
     customer_order_id TEXT PRIMARY KEY UNIQUE NOT NULL,
     code TEXT NOT NULL,
     description TEXT NOT NULL,
-    observation TEXT NOT NULL,
+    observation JSON NOT NULL,
     customer_id TEXT NOT NULL,
     created_at DATE NOT NULL,
     CONSTRAINT fk_customer FOREIGN KEY(customer_id)

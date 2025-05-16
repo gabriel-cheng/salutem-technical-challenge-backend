@@ -86,11 +86,11 @@ public class HamburgerController {
                     .body("Ingredient " + iq.ingredient_id() + " not found.");
                 }
                 Ingredient ingredient = ingredientOpt.get();
-                
+
                 HamburgerIngredients relation = new HamburgerIngredients();
                 relation.setHamburger(newHamburger);
                 relation.setIngredient(ingredient);
-                
+
                 ingredientRelations.add(relation);
             }
 
@@ -102,7 +102,7 @@ public class HamburgerController {
             .status(HttpStatus.OK)
             .body("Hamburger created successfully!");
         } catch(Exception error) {
-            System.out.println("Failed to register that category: " + error.getMessage());
+            System.out.println("Failed to register that hamburger: " + error.getMessage());
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body("An unexpected error ocurred. Please, try again later!");

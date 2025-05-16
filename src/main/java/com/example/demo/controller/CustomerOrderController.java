@@ -40,14 +40,25 @@ public class CustomerOrderController {
             "Customer Order"
         );
     }
-
-    /*
+/*
     @PostMapping
     public ResponseEntity<String> registerNewCustomerOrder(
         @RequestBody @Validated RequestCustomerOrder customerOrder
     ) {
-        // logic
+        try {
+            CustomerOrder newCustomerOrder = new CustomerOrder(customerOrder);
+
+
+
+
+        } catch(Exception error) {
+            System.out.println("Failed to register that customer order: " + error.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("An unexpected error ocurred. Please, try again later!");
+        }
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateCustomerOrder(

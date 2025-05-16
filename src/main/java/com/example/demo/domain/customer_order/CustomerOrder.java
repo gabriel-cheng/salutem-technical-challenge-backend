@@ -38,7 +38,7 @@ public class CustomerOrder {
 
     private String description;
 
-    private String observation;
+    private List<String> observation;
 
     private LocalDateTime created_at;
 
