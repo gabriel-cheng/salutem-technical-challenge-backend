@@ -36,13 +36,9 @@ public class HamburgerIngredients {
     @JoinColumn(name="ingredient_id")
     private Ingredient ingredient;
 
-    private int quantity;
-
-    public HamburgerIngredients(
-        RequestHamburgerIngredients requestHamburgerIngredients
-    ) {
-        this.hamburger = requestHamburgerIngredients.hamburger();
-        this.ingredient = requestHamburgerIngredients.ingredient();
+    public HamburgerIngredients(Hamburger hamburger, Ingredient ingredient) {
+        this.hamburger = hamburger;
+        this.ingredient = ingredient;
     }
 
 

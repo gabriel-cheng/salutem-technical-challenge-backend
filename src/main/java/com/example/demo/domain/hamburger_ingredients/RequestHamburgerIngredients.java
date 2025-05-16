@@ -5,6 +5,5 @@ import com.example.demo.domain.ingredient.Ingredient;
 
 public record RequestHamburgerIngredients(
     Hamburger hamburger,
-    Ingredient ingredient,
-    int quantity
+    Ingredient ingredient
 ) {}

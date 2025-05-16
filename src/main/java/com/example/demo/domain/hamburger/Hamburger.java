@@ -3,7 +3,9 @@ package com.example.demo.domain.hamburger;
 import java.util.List;
 
 import com.example.demo.domain.hamburger_ingredients.HamburgerIngredients;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,7 +36,8 @@ public class Hamburger {
 
     private double unity_price;
 
-    @OneToMany(mappedBy="hamburger")
+    @OneToMany(mappedBy="hamburger", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonIgnoreProperties({"hamburger", "hamburger_ingredients_id"})
     private List<HamburgerIngredients> ingredients;
 
     public Hamburger(RequestHamburger requestHamburger) {

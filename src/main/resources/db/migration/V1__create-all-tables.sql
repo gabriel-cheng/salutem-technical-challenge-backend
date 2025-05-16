@@ -32,7 +32,6 @@ CREATE TABLE hamburger_ingredients(
     hamburger_ingredients_id TEXT PRIMARY KEY UNIQUE NOT NULL,
     hamburger_id TEXT NOT NULL,
     ingredient_id TEXT NOT NULL,
-    quantity INT NOT NULL,
     CONSTRAINT fk_hamburger_ingredient FOREIGN KEY(hamburger_id)
     REFERENCES hamburger(hamburger_id),
     CONSTRAINT fk_ingredient FOREIGN KEY(ingredient_id)
