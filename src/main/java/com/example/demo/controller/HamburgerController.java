@@ -118,7 +118,7 @@ public class HamburgerController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred. Please, try again later!");
+                .body("An unexpected error occurred. Please, try again later!");
         }
     }
 

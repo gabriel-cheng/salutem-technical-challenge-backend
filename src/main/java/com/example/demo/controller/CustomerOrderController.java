@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,10 +33,13 @@ import com.example.demo.domain.drink.DrinkRepository;
 import com.example.demo.domain.hamburger.Hamburger;
 import com.example.demo.domain.hamburger.HamburgerRepository;
 import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.services.CustomerOrderService;
 
 @RestController
 @RequestMapping("/customer_order")
 public class CustomerOrderController {
+
+    private final CustomerOrderService customerOrderService;
 
     @Autowired
     private CustomerOrderRepository customerOrderRepository;
@@ -57,6 +61,10 @@ public class CustomerOrderController {
 
     @Autowired
     private CustomerOrderObservationsRepository customerOrderObservationsRepository;
+
+    public CustomerOrderController(CustomerOrderService customerOrderService) {
+        this.customerOrderService = customerOrderService;
+    }
 
     @GetMapping
     public ResponseEntity<List<CustomerOrder>> getAllCustomerOrders() {
@@ -109,7 +117,7 @@ public class CustomerOrderController {
 
                 CustomerOrderItemHamburger customerOrderItemHamburger = new CustomerOrderItemHamburger();
                 customerOrderItemHamburger.setHamburger(hamburger);
-                customerOrderItemHamburger.setCustomer_order(newCustomerOrder);
+                customerOrderItemHamburger.setCustomerOrder(newCustomerOrder);
 
                 hamburgers.add(customerOrderItemHamburger);
                 
@@ -122,14 +130,14 @@ public class CustomerOrderController {
 
                 CustomerOrderItemDrink customerOrderItemDrink = new CustomerOrderItemDrink();
                 customerOrderItemDrink.setDrink(drinkFound);
-                customerOrderItemDrink.setCustomer_order(newCustomerOrder);
+                customerOrderItemDrink.setCustomerOrder(newCustomerOrder);
                 drinks.add(customerOrderItemDrink);
             }
 
             for (String observation : customerOrder.observations()) {
                 CustomerOrderObservations customerOrderObservations = new CustomerOrderObservations();
                 customerOrderObservations.setCustomer_order_observation(observation);
-                customerOrderObservations.setCustomer_order(newCustomerOrder);
+                customerOrderObservations.setCustomerOrder(newCustomerOrder);
                 observations.add(customerOrderObservations);
             }
             
@@ -152,15 +160,23 @@ public class CustomerOrderController {
         }
     }
 
-    /*
     @PutMapping("/{id}")
     public ResponseEntity<String> updateCustomerOrder(
         @PathVariable String id,
         @RequestBody @Validated RequestCustomerOrder customerOrder
     ) {
-        // logic
+        try {
+            customerOrderService.updateCustomerOrder(id, customerOrder);
+            return ResponseEntity.ok("Order updated successfully!");
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("An unexpected error occurred. Please, try again later!");
+        }
     }
-    */
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCustomerOrder(

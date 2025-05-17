@@ -47,16 +47,16 @@ public class CustomerOrder {
     @JsonIgnoreProperties({"customerOrders"})
     private Customer customer;
 
-    @OneToMany(mappedBy = "customer_order", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties({"customer_order"})
+    @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"customerOrder"})
     private List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "customer_order", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties({"customer_order"})
+    @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"customerOrder"})
     private List<CustomerOrderItemDrink> drinks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "customer_order", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties({"customer_order", "customer_order_observation_id"})
+    @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"customerOrder", "customer_order_observation_id"})
     private List<CustomerOrderObservations> observations = new ArrayList<>();
 
     public CustomerOrder(RequestCustomerOrder requestCustomerOrder) {

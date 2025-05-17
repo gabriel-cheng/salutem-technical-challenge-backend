@@ -31,11 +31,11 @@ public class CustomerOrderObservations {
 
     @ManyToOne
     @JoinColumn(name="customer_order_id")
-    private CustomerOrder customer_order;
+    private CustomerOrder customerOrder;
 
     public CustomerOrderObservations(RequestCustomerOrderObservations requestCustomerOrderObservations) {
         this.customer_order_observation = requestCustomerOrderObservations.customer_order_observation();
-        this.customer_order = requestCustomerOrderObservations.customer_order();
+        this.customerOrder = requestCustomerOrderObservations.customer_order();
     }
 
 }

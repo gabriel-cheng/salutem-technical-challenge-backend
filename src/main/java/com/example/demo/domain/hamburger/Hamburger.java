@@ -40,10 +40,6 @@ public class Hamburger {
     @JsonIgnoreProperties({"hamburger", "hamburger_ingredients_id"})
     private List<HamburgerIngredients> ingredients;
 
-    // @ManyToOne
-    // @JoinColumn(name = "customer_order_id")
-    // private CustomerOrder customerOrder;
-
     public Hamburger(RequestHamburger requestHamburger) {
         this.code = requestHamburger.code();
         this.description = requestHamburger.description();
