@@ -13,7 +13,6 @@ import com.example.demo.domain.hamburger.RequestHamburger;
 import com.example.demo.domain.hamburger_ingredients.HamburgerIngredients;
 import com.example.demo.domain.hamburger_ingredients.HamburgerIngredientsRepository;
 import com.example.demo.domain.ingredient.Ingredient;
-import com.example.demo.domain.ingredient.IngredientQuantity;
 import com.example.demo.domain.ingredient.IngredientRepository;
 import com.example.demo.exceptions.ResourceNotFoundException;
 
@@ -41,14 +40,14 @@ public class HamburgerService {
         Hamburger hamburger = hamburgerRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Hamburger " + id + " not found."));
 
-        if (request.ingredients() == null || request.ingredients().isEmpty()) {
+        if (request.ingredients_id() == null || request.ingredients_id().isEmpty()) {
             throw new IllegalArgumentException("Ingredients can't be empty.");
         }
 
         List<Ingredient> validatedIngredients = new ArrayList<>();
-        for (IngredientQuantity iq : request.ingredients()) {
-            Ingredient ingredient = ingredientRepository.findById(iq.ingredient_id())
-                .orElseThrow(() -> new ResourceNotFoundException("Ingredient " + iq.ingredient_id() + " not found."));
+        for(String ingredient_id : request.ingredients_id()) {
+            Ingredient ingredient = ingredientRepository.findById(ingredient_id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ingredient " + ingredient_id + " not found."));
             validatedIngredients.add(ingredient);
         }
 
