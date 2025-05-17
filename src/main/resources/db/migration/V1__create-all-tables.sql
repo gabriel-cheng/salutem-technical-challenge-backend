@@ -75,3 +75,11 @@ CREATE TABLE customer_order_item_drink(
     CONSTRAINT fk_drink_items FOREIGN KEY(drink_id)
     REFERENCES drink(drink_id)
 );
+
+CREATE TABLE customer_order_additional(
+    customer_order_additional_id TEXT PRIMARY KEY UNIQUE NOT NULL,
+    customer_order_id TEXT NOT NULL,
+    ingredient TEXT NOT NULL,
+    CONSTRAINT fk_ingredient FOREIGN KEY(ingredient)
+    REFERENCES ingredient(ingredient_id)
+);

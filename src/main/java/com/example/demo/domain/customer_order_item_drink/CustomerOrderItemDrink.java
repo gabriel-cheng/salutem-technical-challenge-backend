@@ -28,7 +28,7 @@ public class CustomerOrderItemDrink {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private String customer_order_item_drink_id;
 
-        @ManyToOne
+    @ManyToOne
     @JoinColumn(name="customer_order_id")
     private CustomerOrder customerOrder;
 

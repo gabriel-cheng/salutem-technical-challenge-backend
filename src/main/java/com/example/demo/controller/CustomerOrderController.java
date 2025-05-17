@@ -22,6 +22,8 @@ import com.example.demo.domain.customer.CustomerRepository;
 import com.example.demo.domain.customer_order.CustomerOrder;
 import com.example.demo.domain.customer_order.CustomerOrderRepository;
 import com.example.demo.domain.customer_order.RequestCustomerOrder;
+import com.example.demo.domain.customer_order_additional.CustomerOrderAdditional;
+import com.example.demo.domain.customer_order_additional.CustomerOrderAdditionalRepository;
 import com.example.demo.domain.customer_order_item_drink.CustomerOrderItemDrink;
 import com.example.demo.domain.customer_order_item_drink.CustomerOrderItemDrinkRepository;
 import com.example.demo.domain.customer_order_item_hamburger.CustomerOrderItemHamburger;
@@ -32,6 +34,9 @@ import com.example.demo.domain.drink.Drink;
 import com.example.demo.domain.drink.DrinkRepository;
 import com.example.demo.domain.hamburger.Hamburger;
 import com.example.demo.domain.hamburger.HamburgerRepository;
+import com.example.demo.domain.ingredient.Ingredient;
+import com.example.demo.domain.ingredient.IngredientRepository;
+import com.example.demo.exceptions.InvalidAdditionalIngredientException;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.services.CustomerOrderService;
 
@@ -62,6 +67,12 @@ public class CustomerOrderController {
     @Autowired
     private CustomerOrderObservationsRepository customerOrderObservationsRepository;
 
+    @Autowired
+    private CustomerOrderAdditionalRepository customerOrderAdditionalRepository;
+
+    @Autowired
+    private IngredientRepository ingredientRepository;
+
     public CustomerOrderController(CustomerOrderService customerOrderService) {
         this.customerOrderService = customerOrderService;
     }
@@ -88,7 +99,7 @@ public class CustomerOrderController {
     @PostMapping
     public ResponseEntity<String> registerNewCustomerOrder(
         @RequestBody @Validated RequestCustomerOrder customerOrder
-    ) throws ResourceNotFoundException {
+    ) throws ResourceNotFoundException, InvalidAdditionalIngredientException {
         CustomerOrder newCustomerOrder = new CustomerOrder(customerOrder);
         Customer customerFound = customerRepository.findById(customerOrder.customer_id())
             .orElseThrow(() -> new ResourceNotFoundException("Customer not found!"));
@@ -98,6 +109,7 @@ public class CustomerOrderController {
         List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
         List<CustomerOrderItemDrink> drinks = new ArrayList<>();
         List<CustomerOrderObservations> observations = new ArrayList<>();
+        List<CustomerOrderAdditional> additional = new ArrayList<>();
 
         if(
             customerOrder.hamburger_id().isEmpty() &&
@@ -139,6 +151,22 @@ public class CustomerOrderController {
             customerOrderObservations.setCustomerOrder(newCustomerOrder);
             observations.add(customerOrderObservations);
         }
+
+        for (String ingredient_id : customerOrder.additional()) {
+            Ingredient ingredientFound = ingredientRepository.findById(ingredient_id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ingredient not found!"));
+
+            if (!"yes".equalsIgnoreCase(ingredientFound.getAdditional_flag())) {
+                throw new InvalidAdditionalIngredientException(
+                    "Ingredient " + ingredient_id + " is not an additional item."
+                );
+            }
+
+            CustomerOrderAdditional CustomerOrderAdditional = new CustomerOrderAdditional();
+            CustomerOrderAdditional.setIngredient(ingredientFound);
+            CustomerOrderAdditional.setCustomerOrder(newCustomerOrder);
+            additional.add(CustomerOrderAdditional);
+        }
         
         newCustomerOrder.setDrinks(drinks);
         
@@ -147,6 +175,7 @@ public class CustomerOrderController {
         customerOrderItemHamburgerRepository.saveAll(hamburgers);
         customerOrderItemDrinkRepository.saveAll(drinks);
         customerOrderObservationsRepository.saveAll(observations);
+        customerOrderAdditionalRepository.saveAll(additional);
 
         return ResponseEntity
         .status(HttpStatus.OK)

@@ -9,5 +9,6 @@ public record RequestCustomerOrder(
     String created_at,
     List<String> observations,
     List<String> hamburger_id,
-    List<String> drink_id
+    List<String> drink_id,
+    List<String> additional
 ) {}

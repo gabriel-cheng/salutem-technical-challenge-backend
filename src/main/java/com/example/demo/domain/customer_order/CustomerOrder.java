@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.domain.customer.Customer;
+import com.example.demo.domain.customer_order_additional.CustomerOrderAdditional;
 import com.example.demo.domain.customer_order_item_drink.CustomerOrderItemDrink;
 import com.example.demo.domain.customer_order_item_hamburger.CustomerOrderItemHamburger;
 import com.example.demo.domain.customer_order_observations.CustomerOrderObservations;
@@ -58,6 +59,10 @@ public class CustomerOrder {
     @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"customerOrder", "customer_order_observation_id"})
     private List<CustomerOrderObservations> observations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"customerOrder", "customer_order_additional_id"})
+    private List<CustomerOrderAdditional> additional = new ArrayList<>();
 
     public CustomerOrder(RequestCustomerOrder requestCustomerOrder) {
         this.code = requestCustomerOrder.code();
