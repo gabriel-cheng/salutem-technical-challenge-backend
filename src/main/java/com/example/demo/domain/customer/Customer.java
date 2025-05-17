@@ -38,7 +38,7 @@ public class Customer {
     private String cell;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties({"customerOrders"})
+    @JsonIgnoreProperties({"customerOrders", "customer"})
     private List<CustomerOrder> customerOrders = new ArrayList<>();
 
     public Customer(RequestCustomer requestCustomer) {
