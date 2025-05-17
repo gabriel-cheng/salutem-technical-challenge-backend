@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +23,6 @@ import com.example.demo.domain.hamburger.RequestHamburger;
 import com.example.demo.domain.hamburger_ingredients.HamburgerIngredients;
 import com.example.demo.domain.hamburger_ingredients.HamburgerIngredientsRepository;
 import com.example.demo.domain.ingredient.Ingredient;
-import com.example.demo.domain.ingredient.IngredientQuantity;
 import com.example.demo.domain.ingredient.IngredientRepository;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.services.HamburgerService;
@@ -72,26 +70,23 @@ public class HamburgerController {
             Hamburger newHamburger = new Hamburger(hamburger);
             List<HamburgerIngredients> ingredientRelations = new ArrayList<>();
 
-            if(hamburger.ingredients().isEmpty()) {
+            if(hamburger.ingredients_id().isEmpty()) {
                 return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body("Ingredients can't be empty!");
             }
 
-            for (IngredientQuantity iq : hamburger.ingredients()) {
-                Optional<Ingredient> ingredientOpt = ingredientRepository.findById(iq.ingredient_id());
-                if (ingredientOpt.isEmpty()) {
-                    return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Ingredient " + iq.ingredient_id() + " not found.");
-                }
-                Ingredient ingredient = ingredientOpt.get();
+            for(int i = 0; i < hamburger.ingredients_id().size(); i++) {
+                Ingredient ingredientFound = ingredientRepository.findById(hamburger.ingredients_id().get(i))
+                    .orElseThrow(() -> new ResourceNotFoundException("Ingredient not found!"));
 
-                HamburgerIngredients relation = new HamburgerIngredients();
-                relation.setHamburger(newHamburger);
-                relation.setIngredient(ingredient);
+                Ingredient ingredient = ingredientFound;
 
-                ingredientRelations.add(relation);
+                HamburgerIngredients hamburgerIngredients = new HamburgerIngredients();
+                hamburgerIngredients.setHamburger(newHamburger);
+                hamburgerIngredients.setIngredient(ingredient);
+
+                ingredientRelations.add(hamburgerIngredients);
             }
 
             hamburgerRepository.save(newHamburger);
