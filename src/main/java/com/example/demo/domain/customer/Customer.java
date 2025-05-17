@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.domain.customer_order.CustomerOrder;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -37,6 +38,7 @@ public class Customer {
     private String cell;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"customerOrders"})
     private List<CustomerOrder> customerOrders = new ArrayList<>();
 
     public Customer(RequestCustomer requestCustomer) {

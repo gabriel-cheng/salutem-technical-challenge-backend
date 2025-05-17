@@ -1,8 +1,6 @@
 package com.example.demo.domain.customer_order_items;
 
 import com.example.demo.domain.customer_order.CustomerOrder;
-import com.example.demo.domain.drink.Drink;
-import com.example.demo.domain.hamburger.Hamburger;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,18 +31,18 @@ public class CustomerOrderItems {
     @JoinColumn(name="customer_order_id")
     private CustomerOrder customerOrder;
 
-    @ManyToOne
-    @JoinColumn(name="hamburger_id")
-    private Hamburger hamburger;
+    // @ManyToOne
+    // @JoinColumn(name="hamburger_id")
+    // private List<CustomerOrderItemHamburger> hamburgers;
 
-    @ManyToOne
-    @JoinColumn(name="drink_id")
-    private Drink drink;
+    // @ManyToOne
+    // @JoinColumn(name="drink_id")
+    // private List<CustomerOrderItemDrink> drinks;
 
     public CustomerOrderItems(RequestCustomerOrderItems requestCustomerOrderItems) {
         this.customerOrder = requestCustomerOrderItems.customer_order();
-        this.hamburger = requestCustomerOrderItems.hamburger();
-        this.drink = requestCustomerOrderItems.drink();
+        // this.hamburgers = requestCustomerOrderItems.hamburgers();
+        // this.drinks = requestCustomerOrderItems.drinks();
     }
 
 }

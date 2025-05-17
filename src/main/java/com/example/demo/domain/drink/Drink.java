@@ -31,6 +31,10 @@ public class Drink {
 
     private String sugar_flag;
 
+    // @ManyToOne
+    // @JoinColumn(name = "customer_order_id")
+    // private CustomerOrder customerOrder;
+
     public Drink(RequestDrink requestDrink) {
         this.code = requestDrink.code();
         this.description = requestDrink.description();
