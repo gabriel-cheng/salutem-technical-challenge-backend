@@ -83,7 +83,7 @@ public class DrinkController {
         return ResponseUtils.deleteEntityResponse(
             () -> drinkRepository.findById(id),
             drinkRepository::delete,
-            "Customer",
+            "Drink",
             id
         );
     }

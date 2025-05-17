@@ -65,43 +65,36 @@ public class HamburgerController {
     @PostMapping
     public ResponseEntity<String> registerNewHamburger(
         @RequestBody @Validated RequestHamburger hamburger
-    ) {
-        try {
-            Hamburger newHamburger = new Hamburger(hamburger);
-            List<HamburgerIngredients> ingredientRelations = new ArrayList<>();
+    ) throws ResourceNotFoundException {
+        Hamburger newHamburger = new Hamburger(hamburger);
+        List<HamburgerIngredients> ingredientRelations = new ArrayList<>();
 
-            if(hamburger.ingredients_id().isEmpty()) {
-                return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body("Ingredients can't be empty!");
-            }
-
-            for(int i = 0; i < hamburger.ingredients_id().size(); i++) {
-                Ingredient ingredientFound = ingredientRepository.findById(hamburger.ingredients_id().get(i))
-                    .orElseThrow(() -> new ResourceNotFoundException("Ingredient not found!"));
-
-                Ingredient ingredient = ingredientFound;
-
-                HamburgerIngredients hamburgerIngredients = new HamburgerIngredients();
-                hamburgerIngredients.setHamburger(newHamburger);
-                hamburgerIngredients.setIngredient(ingredient);
-
-                ingredientRelations.add(hamburgerIngredients);
-            }
-
-            hamburgerRepository.save(newHamburger);
-
-            hamburgerIngredientsRepository.saveAll(ingredientRelations);
-
+        if(hamburger.ingredients_id().isEmpty()) {
             return ResponseEntity
-            .status(HttpStatus.OK)
-            .body("Hamburger created successfully!");
-        } catch(Exception error) {
-            System.out.println("Failed to register that hamburger: " + error.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("An unexpected error ocurred. Please, try again later!");
+            .status(HttpStatus.BAD_REQUEST)
+            .body("Ingredients can't be empty!");
         }
+
+        for(int i = 0; i < hamburger.ingredients_id().size(); i++) {
+            Ingredient ingredientFound = ingredientRepository.findById(hamburger.ingredients_id().get(i))
+                .orElseThrow(() -> new ResourceNotFoundException("Ingredient not found!"));
+
+            Ingredient ingredient = ingredientFound;
+
+            HamburgerIngredients hamburgerIngredients = new HamburgerIngredients();
+            hamburgerIngredients.setHamburger(newHamburger);
+            hamburgerIngredients.setIngredient(ingredient);
+
+            ingredientRelations.add(hamburgerIngredients);
+        }
+
+        hamburgerRepository.save(newHamburger);
+
+        hamburgerIngredientsRepository.saveAll(ingredientRelations);
+
+        return ResponseEntity
+        .status(HttpStatus.OK)
+        .body("Hamburger created successfully!");
     }
 
     @PutMapping("/{id}")

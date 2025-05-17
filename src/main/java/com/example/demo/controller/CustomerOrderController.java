@@ -89,75 +89,68 @@ public class CustomerOrderController {
     public ResponseEntity<String> registerNewCustomerOrder(
         @RequestBody @Validated RequestCustomerOrder customerOrder
     ) throws ResourceNotFoundException {
-        try {
-            CustomerOrder newCustomerOrder = new CustomerOrder(customerOrder);
-            Customer customerFound = customerRepository.findById(customerOrder.customer_id())
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found!"));
+        CustomerOrder newCustomerOrder = new CustomerOrder(customerOrder);
+        Customer customerFound = customerRepository.findById(customerOrder.customer_id())
+            .orElseThrow(() -> new ResourceNotFoundException("Customer not found!"));
 
-            newCustomerOrder.setCustomer(customerFound);
-            
-            List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
-            List<CustomerOrderItemDrink> drinks = new ArrayList<>();
-            List<CustomerOrderObservations> observations = new ArrayList<>();
+        newCustomerOrder.setCustomer(customerFound);
+        
+        List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
+        List<CustomerOrderItemDrink> drinks = new ArrayList<>();
+        List<CustomerOrderObservations> observations = new ArrayList<>();
 
-            if(
-                customerOrder.hamburger_id().isEmpty() &&
-                 customerOrder.drink_id().isEmpty()
-            ) {
-                return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body("To generate an order, you need at least one item");
-            }
-
-            for (String hamburger_id : customerOrder.hamburger_id()) {
-                Hamburger hamburgerFound = hamburgerRepository.findById(hamburger_id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Hamburger not found!"));
-                
-                Hamburger hamburger = hamburgerFound;
-
-                CustomerOrderItemHamburger customerOrderItemHamburger = new CustomerOrderItemHamburger();
-                customerOrderItemHamburger.setHamburger(hamburger);
-                customerOrderItemHamburger.setCustomerOrder(newCustomerOrder);
-
-                hamburgers.add(customerOrderItemHamburger);
-                
-                newCustomerOrder.setHamburgers(hamburgers);
-            }
-            
-            for (String drink_id : customerOrder.drink_id()) {
-                Drink drinkFound = drinkRepository.findById(drink_id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Drink not found!"));
-
-                CustomerOrderItemDrink customerOrderItemDrink = new CustomerOrderItemDrink();
-                customerOrderItemDrink.setDrink(drinkFound);
-                customerOrderItemDrink.setCustomerOrder(newCustomerOrder);
-                drinks.add(customerOrderItemDrink);
-            }
-
-            for (String observation : customerOrder.observations()) {
-                CustomerOrderObservations customerOrderObservations = new CustomerOrderObservations();
-                customerOrderObservations.setCustomer_order_observation(observation);
-                customerOrderObservations.setCustomerOrder(newCustomerOrder);
-                observations.add(customerOrderObservations);
-            }
-            
-            newCustomerOrder.setDrinks(drinks);
-            
-            customerOrderRepository.save(newCustomerOrder);
-
-            customerOrderItemHamburgerRepository.saveAll(hamburgers);
-            customerOrderItemDrinkRepository.saveAll(drinks);
-            customerOrderObservationsRepository.saveAll(observations);
-
+        if(
+            customerOrder.hamburger_id().isEmpty() &&
+                customerOrder.drink_id().isEmpty()
+        ) {
             return ResponseEntity
-            .status(HttpStatus.OK)
-            .body("Order created successfully!");
-        } catch(Exception error) {
-            System.out.println("Failed to register that customer order: " + error.getMessage());
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("An unexpected error ocurred. Please, try again later!");
+            .status(HttpStatus.BAD_REQUEST)
+            .body("To generate an order, you need at least one item");
         }
+
+        for (String hamburger_id : customerOrder.hamburger_id()) {
+            Hamburger hamburgerFound = hamburgerRepository.findById(hamburger_id)
+                .orElseThrow(() -> new ResourceNotFoundException("Hamburger not found!"));
+            
+            Hamburger hamburger = hamburgerFound;
+
+            CustomerOrderItemHamburger customerOrderItemHamburger = new CustomerOrderItemHamburger();
+            customerOrderItemHamburger.setHamburger(hamburger);
+            customerOrderItemHamburger.setCustomerOrder(newCustomerOrder);
+
+            hamburgers.add(customerOrderItemHamburger);
+            
+            newCustomerOrder.setHamburgers(hamburgers);
+        }
+        
+        for (String drink_id : customerOrder.drink_id()) {
+            Drink drinkFound = drinkRepository.findById(drink_id)
+                .orElseThrow(() -> new ResourceNotFoundException("Drink not found!"));
+
+            CustomerOrderItemDrink customerOrderItemDrink = new CustomerOrderItemDrink();
+            customerOrderItemDrink.setDrink(drinkFound);
+            customerOrderItemDrink.setCustomerOrder(newCustomerOrder);
+            drinks.add(customerOrderItemDrink);
+        }
+
+        for (String observation : customerOrder.observations()) {
+            CustomerOrderObservations customerOrderObservations = new CustomerOrderObservations();
+            customerOrderObservations.setCustomer_order_observation(observation);
+            customerOrderObservations.setCustomerOrder(newCustomerOrder);
+            observations.add(customerOrderObservations);
+        }
+        
+        newCustomerOrder.setDrinks(drinks);
+        
+        customerOrderRepository.save(newCustomerOrder);
+
+        customerOrderItemHamburgerRepository.saveAll(hamburgers);
+        customerOrderItemDrinkRepository.saveAll(drinks);
+        customerOrderObservationsRepository.saveAll(observations);
+
+        return ResponseEntity
+        .status(HttpStatus.OK)
+        .body("Order created successfully!");
     }
 
     @PutMapping("/{id}")
