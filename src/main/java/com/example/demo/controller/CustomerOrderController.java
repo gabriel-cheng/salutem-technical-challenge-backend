@@ -25,6 +25,8 @@ import com.example.demo.domain.customer_order_item_drink.CustomerOrderItemDrink;
 import com.example.demo.domain.customer_order_item_drink.CustomerOrderItemDrinkRepository;
 import com.example.demo.domain.customer_order_item_hamburger.CustomerOrderItemHamburger;
 import com.example.demo.domain.customer_order_item_hamburger.CustomerOrderItemHamburgerRepository;
+import com.example.demo.domain.customer_order_observations.CustomerOrderObservations;
+import com.example.demo.domain.customer_order_observations.CustomerOrderObservationsRepository;
 import com.example.demo.domain.drink.Drink;
 import com.example.demo.domain.drink.DrinkRepository;
 import com.example.demo.domain.hamburger.Hamburger;
@@ -52,6 +54,9 @@ public class CustomerOrderController {
 
     @Autowired
     private CustomerOrderItemHamburgerRepository customerOrderItemHamburgerRepository;
+
+    @Autowired
+    private CustomerOrderObservationsRepository customerOrderObservationsRepository;
 
     @GetMapping
     public ResponseEntity<List<CustomerOrder>> getAllCustomerOrders() {
@@ -85,6 +90,7 @@ public class CustomerOrderController {
             
             List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
             List<CustomerOrderItemDrink> drinks = new ArrayList<>();
+            List<CustomerOrderObservations> observations = new ArrayList<>();
 
             if(
                 customerOrder.hamburger_id().isEmpty() &&
@@ -103,7 +109,8 @@ public class CustomerOrderController {
 
                 CustomerOrderItemHamburger customerOrderItemHamburger = new CustomerOrderItemHamburger();
                 customerOrderItemHamburger.setHamburger(hamburger);
-                
+                customerOrderItemHamburger.setCustomer_order(newCustomerOrder);
+
                 hamburgers.add(customerOrderItemHamburger);
                 
                 newCustomerOrder.setHamburgers(hamburgers);
@@ -112,26 +119,27 @@ public class CustomerOrderController {
             for (String drink_id : customerOrder.drink_id()) {
                 Drink drinkFound = drinkRepository.findById(drink_id)
                     .orElseThrow(() -> new ResourceNotFoundException("Drink not found!"));
-                
-                Drink drink = drinkFound;
 
                 CustomerOrderItemDrink customerOrderItemDrink = new CustomerOrderItemDrink();
-                customerOrderItemDrink.setDrink(drink);
-
+                customerOrderItemDrink.setDrink(drinkFound);
+                customerOrderItemDrink.setCustomer_order(newCustomerOrder);
                 drinks.add(customerOrderItemDrink);
-
-                newCustomerOrder.setDrinks(drinks);
             }
+
+            for (String observation : customerOrder.observations()) {
+                CustomerOrderObservations customerOrderObservations = new CustomerOrderObservations();
+                customerOrderObservations.setCustomer_order_observation(observation);
+                customerOrderObservations.setCustomer_order(newCustomerOrder);
+                observations.add(customerOrderObservations);
+            }
+            
+            newCustomerOrder.setDrinks(drinks);
             
             customerOrderRepository.save(newCustomerOrder);
 
             customerOrderItemHamburgerRepository.saveAll(hamburgers);
             customerOrderItemDrinkRepository.saveAll(drinks);
-
-            // ObjectMapper mapper = new ObjectMapper();
-
-            // String json = mapper.writeValueAsString(newCustomerOrder);
-            // System.out.println(json);
+            customerOrderObservationsRepository.saveAll(observations);
 
             return ResponseEntity
             .status(HttpStatus.OK)

@@ -30,14 +30,14 @@ public class CustomerOrderItemDrink {
 
         @ManyToOne
     @JoinColumn(name="customer_order_id")
-    private CustomerOrder customerOrder;
+    private CustomerOrder customer_order;
 
     @ManyToOne
     @JoinColumn(name="drink_id")
     private Drink drink;
 
     public CustomerOrderItemDrink(RequestCustomerOrderItemDrink requestCustomerOrderItemDrink) {
-        this.customerOrder = requestCustomerOrderItemDrink.customer_order();
+        this.customer_order = requestCustomerOrderItemDrink.customer_order();
         this.drink = requestCustomerOrderItemDrink.drink();
     }
 

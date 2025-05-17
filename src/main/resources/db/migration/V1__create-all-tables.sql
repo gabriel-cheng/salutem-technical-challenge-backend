@@ -42,15 +42,22 @@ CREATE TABLE customer_order(
     customer_order_id TEXT PRIMARY KEY UNIQUE NOT NULL,
     code TEXT NOT NULL,
     description TEXT NOT NULL,
-    observation JSON NOT NULL,
     customer_id TEXT NOT NULL,
     created_at TEXT NOT NULL,
     CONSTRAINT fk_customer FOREIGN KEY(customer_id)
     REFERENCES customer(customer_id)
 );
 
+CREATE TABLE customer_order_observations(
+    customer_order_observation_id TEXT PRIMARY KEY UNIQUE NOT NULL,
+    customer_order_id TEXT NOT NULL,
+    customer_order_observation TEXT NOT NULL,
+    CONSTRAINT fk_customer_order_items FOREIGN KEY(customer_order_id)
+    REFERENCES customer_order(customer_order_id)
+);
+
 CREATE TABLE customer_order_item_hamburger(
-    customer_order_items_id TEXT PRIMARY KEY UNIQUE NOT NULL,
+    customer_order_item_hamburger_id TEXT PRIMARY KEY UNIQUE NOT NULL,
     customer_order_id TEXT NOT NULL,
     hamburger_id TEXT NOT NULL,
     CONSTRAINT fk_customer_order_items FOREIGN KEY(customer_order_id)
@@ -60,7 +67,7 @@ CREATE TABLE customer_order_item_hamburger(
 );
 
 CREATE TABLE customer_order_item_drink(
-    customer_order_items_id TEXT PRIMARY KEY UNIQUE NOT NULL,
+    customer_order_item_drink_id TEXT PRIMARY KEY UNIQUE NOT NULL,
     customer_order_id TEXT NOT NULL,
     drink_id TEXT NOT NULL,
     CONSTRAINT fk_customer_order_items FOREIGN KEY(customer_order_id)

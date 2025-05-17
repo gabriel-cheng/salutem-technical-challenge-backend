@@ -6,12 +6,10 @@ import java.util.List;
 import com.example.demo.domain.customer.Customer;
 import com.example.demo.domain.customer_order_item_drink.CustomerOrderItemDrink;
 import com.example.demo.domain.customer_order_item_hamburger.CustomerOrderItemHamburger;
-import com.example.demo.services.StringListToJsonConverter;
+import com.example.demo.domain.customer_order_observations.CustomerOrderObservations;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -42,10 +40,6 @@ public class CustomerOrder {
 
     private String description;
 
-    @Convert(converter = StringListToJsonConverter.class)
-    @Column(columnDefinition = "json", nullable = false)
-    private List<String> observation;
-
     private String created_at;
 
     @ManyToOne
@@ -53,16 +47,21 @@ public class CustomerOrder {
     @JsonIgnoreProperties({"customerOrders"})
     private Customer customer;
 
-    @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "customer_order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"customer_order"})
     private List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "customer_order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"customer_order"})
     private List<CustomerOrderItemDrink> drinks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "customer_order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"customer_order", "customer_order_observation_id"})
+    private List<CustomerOrderObservations> observations = new ArrayList<>();
 
     public CustomerOrder(RequestCustomerOrder requestCustomerOrder) {
         this.code = requestCustomerOrder.code();
         this.description = requestCustomerOrder.description();
-        this.observation = requestCustomerOrder.observation();
         this.created_at = requestCustomerOrder.created_at();
     }
 

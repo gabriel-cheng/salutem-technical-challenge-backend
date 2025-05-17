@@ -28,16 +28,16 @@ public class CustomerOrderItemHamburger {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private String customer_order_item_hamburger_id;
 
-        @ManyToOne
+    @ManyToOne
     @JoinColumn(name="customer_order_id")
-    private CustomerOrder customerOrder;
+    private CustomerOrder customer_order;
 
     @ManyToOne
-    @JoinColumn(name="drink_id")
+    @JoinColumn(name="hamburger_id")
     private Hamburger hamburger;
 
     public CustomerOrderItemHamburger(RequestCustomerOrderItemHamburger requestCustomerOrderItemDrink) {
-        this.customerOrder = requestCustomerOrderItemDrink.customer_order();
+        this.customer_order = requestCustomerOrderItemDrink.customer_order();
         this.hamburger = requestCustomerOrderItemDrink.hamburger();
     }
 
