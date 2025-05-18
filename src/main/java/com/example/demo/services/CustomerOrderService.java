@@ -12,6 +12,8 @@ import com.example.demo.domain.customer.CustomerRepository;
 import com.example.demo.domain.customer_order.CustomerOrder;
 import com.example.demo.domain.customer_order.CustomerOrderRepository;
 import com.example.demo.domain.customer_order.RequestCustomerOrder;
+import com.example.demo.domain.customer_order_additional.CustomerOrderAdditional;
+import com.example.demo.domain.customer_order_additional.CustomerOrderAdditionalRepository;
 import com.example.demo.domain.customer_order_item_drink.CustomerOrderItemDrink;
 import com.example.demo.domain.customer_order_item_drink.CustomerOrderItemDrinkRepository;
 import com.example.demo.domain.customer_order_item_hamburger.CustomerOrderItemHamburger;
@@ -22,6 +24,9 @@ import com.example.demo.domain.drink.Drink;
 import com.example.demo.domain.drink.DrinkRepository;
 import com.example.demo.domain.hamburger.Hamburger;
 import com.example.demo.domain.hamburger.HamburgerRepository;
+import com.example.demo.domain.ingredient.Ingredient;
+import com.example.demo.domain.ingredient.IngredientRepository;
+import com.example.demo.exceptions.InvalidAdditionalIngredientException;
 import com.example.demo.exceptions.ResourceNotFoundException;
 
 @Service
@@ -34,6 +39,8 @@ public class CustomerOrderService {
     private final CustomerOrderItemHamburgerRepository hamburgerItemRepository;
     private final CustomerOrderItemDrinkRepository drinkItemRepository;
     private final CustomerOrderObservationsRepository observationsRepository;
+    private final IngredientRepository ingredientRepository;
+    private final CustomerOrderAdditionalRepository customerOrderAdditionalRepository;
 
     public CustomerOrderService(
         CustomerOrderRepository customerOrderRepository,
@@ -42,7 +49,9 @@ public class CustomerOrderService {
         DrinkRepository drinkRepository,
         CustomerOrderItemHamburgerRepository hamburgerItemRepository,
         CustomerOrderItemDrinkRepository drinkItemRepository,
-        CustomerOrderObservationsRepository observationsRepository
+        CustomerOrderObservationsRepository observationsRepository,
+        IngredientRepository ingredientRepository,
+        CustomerOrderAdditionalRepository customerOrderAdditionalRepository
     ) {
         this.customerOrderRepository = customerOrderRepository;
         this.customerRepository = customerRepository;
@@ -51,10 +60,12 @@ public class CustomerOrderService {
         this.hamburgerItemRepository = hamburgerItemRepository;
         this.drinkItemRepository = drinkItemRepository;
         this.observationsRepository = observationsRepository;
+        this.ingredientRepository = ingredientRepository;
+        this.customerOrderAdditionalRepository = customerOrderAdditionalRepository;
     }
 
     @Transactional
-    public void updateCustomerOrder(String id, RequestCustomerOrder request) throws ResourceNotFoundException {
+    public void updateCustomerOrder(String id, RequestCustomerOrder request) throws ResourceNotFoundException, InvalidAdditionalIngredientException {
         CustomerOrder existingOrder = customerOrderRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Order " + id + " not found."));
 
@@ -63,6 +74,7 @@ public class CustomerOrderService {
 
         existingOrder.setCustomer(customer);
         existingOrder.setCode(request.code());
+        existingOrder.setFinal_price(request.final_price());
         existingOrder.setCreated_at(request.created_at());
         existingOrder.setDescription(request.description());
 
@@ -90,6 +102,23 @@ public class CustomerOrderService {
             drinks.add(item);
         }
 
+        List<CustomerOrderAdditional> additional = new ArrayList<>();
+        for (String ingredient_id : request.additional()) {
+            Ingredient ingredientFound = ingredientRepository.findById(ingredient_id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ingredient not found!"));
+
+            if (!"yes".equalsIgnoreCase(ingredientFound.getAdditional_flag())) {
+                throw new InvalidAdditionalIngredientException(
+                    "Ingredient " + ingredient_id + " is not an additional item."
+                );
+            }
+
+            CustomerOrderAdditional CustomerOrderAdditional = new CustomerOrderAdditional();
+            CustomerOrderAdditional.setIngredient(ingredientFound);
+            CustomerOrderAdditional.setCustomerOrder(existingOrder);
+            additional.add(CustomerOrderAdditional);
+        }
+
         List<CustomerOrderObservations> observations = request.observations().stream()
             .map(obs -> {
                 CustomerOrderObservations o = new CustomerOrderObservations();
@@ -102,5 +131,6 @@ public class CustomerOrderService {
         hamburgerItemRepository.saveAll(hamburgers);
         drinkItemRepository.saveAll(drinks);
         observationsRepository.saveAll(observations);
+        customerOrderAdditionalRepository.saveAll(additional);
     }
 }

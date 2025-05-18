@@ -106,11 +106,6 @@ public class CustomerOrderController {
 
         newCustomerOrder.setCustomer(customerFound);
         
-        List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
-        List<CustomerOrderItemDrink> drinks = new ArrayList<>();
-        List<CustomerOrderObservations> observations = new ArrayList<>();
-        List<CustomerOrderAdditional> additional = new ArrayList<>();
-
         if(
             customerOrder.hamburger_id().isEmpty() &&
                 customerOrder.drink_id().isEmpty()
@@ -120,6 +115,7 @@ public class CustomerOrderController {
             .body("To generate an order, you need at least one item");
         }
 
+        List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
         for (String hamburger_id : customerOrder.hamburger_id()) {
             Hamburger hamburgerFound = hamburgerRepository.findById(hamburger_id)
                 .orElseThrow(() -> new ResourceNotFoundException("Hamburger not found!"));
@@ -135,6 +131,7 @@ public class CustomerOrderController {
             newCustomerOrder.setHamburgers(hamburgers);
         }
         
+        List<CustomerOrderItemDrink> drinks = new ArrayList<>();
         for (String drink_id : customerOrder.drink_id()) {
             Drink drinkFound = drinkRepository.findById(drink_id)
                 .orElseThrow(() -> new ResourceNotFoundException("Drink not found!"));
@@ -145,6 +142,7 @@ public class CustomerOrderController {
             drinks.add(customerOrderItemDrink);
         }
 
+        List<CustomerOrderObservations> observations = new ArrayList<>();
         for (String observation : customerOrder.observations()) {
             CustomerOrderObservations customerOrderObservations = new CustomerOrderObservations();
             customerOrderObservations.setCustomer_order_observation(observation);
@@ -152,6 +150,7 @@ public class CustomerOrderController {
             observations.add(customerOrderObservations);
         }
 
+        List<CustomerOrderAdditional> additional = new ArrayList<>();
         for (String ingredient_id : customerOrder.additional()) {
             Ingredient ingredientFound = ingredientRepository.findById(ingredient_id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ingredient not found!"));
@@ -194,6 +193,9 @@ public class CustomerOrderController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (InvalidAdditionalIngredientException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("An unexpected error occurred. Please, try again later!");
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("An unexpected error occurred. Please, try again later!");
