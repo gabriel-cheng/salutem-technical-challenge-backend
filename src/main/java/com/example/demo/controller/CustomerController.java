@@ -14,11 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.controller.responses.ResponseUtils;
 import com.example.demo.domain.customer.Customer;
 import com.example.demo.domain.customer.CustomerRepository;
 import com.example.demo.domain.customer.RequestCustomer;
+import com.example.demo.exceptions.InvalidItemCodeException;
 import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.utils.ResponseUtils;
 
 @RestController
 @RequestMapping("/customer")
@@ -47,12 +48,14 @@ public class CustomerController {
     @PostMapping
     public ResponseEntity<String> registerNewCustomer(
         @RequestBody @Validated RequestCustomer customer
-    ) {
+    ) throws InvalidItemCodeException {
         return ResponseUtils.registerNewEntity(
             customer,
             req -> new Customer(req),
             customerRepository::save,
-            "Customer"
+            "Customer",
+            null,
+            null
         );
     }
 
@@ -60,7 +63,7 @@ public class CustomerController {
     public ResponseEntity<Customer> updateCustomer(
         @RequestBody @Validated RequestCustomer customer,
         @PathVariable String id
-    ) throws ResourceNotFoundException {
+    ) throws ResourceNotFoundException, InvalidItemCodeException {
         return ResponseUtils.updateEntity(
             customer,
             () -> customerRepository.findById(id),
@@ -71,7 +74,10 @@ public class CustomerController {
             },
             customerRepository::save,
             "Customer",
-            id
+            id,
+            null,
+            null,
+            null
         );
     }
 

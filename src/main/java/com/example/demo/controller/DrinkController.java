@@ -14,11 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.controller.responses.ResponseUtils;
 import com.example.demo.domain.drink.Drink;
 import com.example.demo.domain.drink.DrinkRepository;
 import com.example.demo.domain.drink.RequestDrink;
+import com.example.demo.exceptions.InvalidItemCodeException;
 import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.utils.ResponseUtils;
 
 @RestController
 @RequestMapping("/drink")
@@ -47,12 +48,14 @@ public class DrinkController {
     @PostMapping
     public ResponseEntity<String> registerNewDrink(
         @RequestBody @Validated RequestDrink drink
-    ) {
+    ) throws InvalidItemCodeException {
         return ResponseUtils.registerNewEntity(
             drink,
             req -> new Drink(req),
             drinkRepository::save,
-            "Drink"
+            "Drink",
+            RequestDrink::code,
+            code -> drinkRepository.existsByCode(code)
         );
     }
 
@@ -60,7 +63,7 @@ public class DrinkController {
     public ResponseEntity<Drink> updateDrink(
         @RequestBody @Validated RequestDrink drink,
         @PathVariable String id
-    ) throws ResourceNotFoundException {
+    ) throws ResourceNotFoundException, InvalidItemCodeException {
         return ResponseUtils.updateEntity(
             drink,
             () -> drinkRepository.findById(id),
@@ -72,7 +75,10 @@ public class DrinkController {
             },
             drinkRepository::save,
             "Drink",
-            id
+            id,
+            RequestDrink::code,
+            code -> drinkRepository.existsByCodeAndDrinkIdNot(code, id),
+            entity -> entity.getCode()
         );
     }
 

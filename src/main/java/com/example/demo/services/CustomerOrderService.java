@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import com.example.demo.domain.hamburger.HamburgerRepository;
 import com.example.demo.domain.ingredient.Ingredient;
 import com.example.demo.domain.ingredient.IngredientRepository;
 import com.example.demo.exceptions.InvalidAdditionalIngredientException;
+import com.example.demo.exceptions.InvalidItemCodeException;
 import com.example.demo.exceptions.ResourceNotFoundException;
 
 @Service
@@ -65,12 +67,19 @@ public class CustomerOrderService {
     }
 
     @Transactional
-    public void updateCustomerOrder(String id, RequestCustomerOrder request) throws ResourceNotFoundException, InvalidAdditionalIngredientException {
+    public void updateCustomerOrder(String id, RequestCustomerOrder request)
+        throws ResourceNotFoundException, InvalidAdditionalIngredientException, InvalidItemCodeException {
+
         CustomerOrder existingOrder = customerOrderRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Order " + id + " not found."));
 
         Customer customer = customerRepository.findById(request.customer_id())
             .orElseThrow(() -> new ResourceNotFoundException("Customer not found."));
+
+        Optional<CustomerOrder> orderWithSameCode = customerOrderRepository.findByCode(request.code());
+        if (orderWithSameCode.isPresent() && !orderWithSameCode.get().getCustomerOrderId().equals(id)) {
+            throw new InvalidItemCodeException("There is already an order with code " + request.code());
+        }
 
         existingOrder.setCustomer(customer);
         existingOrder.setCode(request.code());
@@ -81,6 +90,7 @@ public class CustomerOrderService {
         hamburgerItemRepository.deleteAllByCustomerOrder(existingOrder);
         drinkItemRepository.deleteAllByCustomerOrder(existingOrder);
         observationsRepository.deleteAllByCustomerOrder(existingOrder);
+        customerOrderAdditionalRepository.deleteAllByCustomerOrder(existingOrder);
 
         List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
         for (String hamburger_id : request.hamburger_id()) {
@@ -104,19 +114,19 @@ public class CustomerOrderService {
 
         List<CustomerOrderAdditional> additional = new ArrayList<>();
         for (String ingredient_id : request.additional()) {
-            Ingredient ingredientFound = ingredientRepository.findById(ingredient_id)
+            Ingredient ingredient = ingredientRepository.findById(ingredient_id)
                 .orElseThrow(() -> new ResourceNotFoundException("Ingredient not found!"));
 
-            if (!"yes".equalsIgnoreCase(ingredientFound.getAdditional_flag())) {
+            if (!"yes".equalsIgnoreCase(ingredient.getAdditional_flag())) {
                 throw new InvalidAdditionalIngredientException(
                     "Ingredient " + ingredient_id + " is not an additional item."
                 );
             }
 
-            CustomerOrderAdditional CustomerOrderAdditional = new CustomerOrderAdditional();
-            CustomerOrderAdditional.setIngredient(ingredientFound);
-            CustomerOrderAdditional.setCustomerOrder(existingOrder);
-            additional.add(CustomerOrderAdditional);
+            CustomerOrderAdditional add = new CustomerOrderAdditional();
+            add.setIngredient(ingredient);
+            add.setCustomerOrder(existingOrder);
+            additional.add(add);
         }
 
         List<CustomerOrderObservations> observations = request.observations().stream()
@@ -133,4 +143,5 @@ public class CustomerOrderService {
         observationsRepository.saveAll(observations);
         customerOrderAdditionalRepository.saveAll(additional);
     }
+
 }

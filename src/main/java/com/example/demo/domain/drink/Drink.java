@@ -1,5 +1,6 @@
 package com.example.demo.domain.drink;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,11 +18,12 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of="drink_id")
+@EqualsAndHashCode(of="drinkId")
 public class Drink {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
-    private String drink_id;
+    @Column(name="drink_id")
+    private String drinkId;
 
     private String code;
 

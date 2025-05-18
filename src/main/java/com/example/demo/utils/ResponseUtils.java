@@ -1,4 +1,4 @@
-package com.example.demo.controller.responses;
+package com.example.demo.utils;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.example.demo.exceptions.InvalidItemCodeException;
 import com.example.demo.exceptions.ResourceNotFoundException;
 
 public class ResponseUtils {
@@ -47,22 +48,32 @@ public class ResponseUtils {
         R requestObject,
         Function<R, E> mapper,
         Consumer<E> saveFunction,
-        String entityName
-    ) {
+        String entityName,
+        Function<R, String> codeExtractor,
+        Function<String, Boolean> codeExistsChecker
+    ) throws InvalidItemCodeException {
         try {
-            E newEntity = mapper.apply(requestObject);
+            if (codeExtractor != null && codeExistsChecker != null) {
+                String code = codeExtractor.apply(requestObject);
+                if (code != null && codeExistsChecker.apply(code)) {
+                    throw new InvalidItemCodeException(entityName + " with code \"" + code + "\" already exists!");
+                }
+            }
 
+            E newEntity = mapper.apply(requestObject);
             saveFunction.accept(newEntity);
 
             return ResponseEntity
-            .status(HttpStatus.OK)
-            .body(entityName + " created successfully!");
-        } catch(Exception error) {
+                .status(HttpStatus.OK)
+                .body(entityName + " created successfully!");
+        } catch (InvalidItemCodeException e) {
+            throw e;
+        } catch (Exception error) {
             System.out.println("Failed to register " + entityName + ": " + error.getMessage());
 
             return ResponseEntity
-            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("An unexpected error occurred. Please, try again later!");
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("An unexpected error occurred. Please, try again later!");
         }
     }
 
@@ -72,19 +83,29 @@ public class ResponseUtils {
         BiConsumer<R, E> updateFunction,
         Consumer<E> saveFunction,
         String entityName,
-        String id
-    ) throws ResourceNotFoundException {
+        String id,
+        Function<R, String> codeExtractor,
+        Function<String, Boolean> codeExistsChecker,
+        Function<E, String> currentEntityCodeExtractor
+    ) throws ResourceNotFoundException, InvalidItemCodeException {
         E entity = findEntityById.get()
-        .orElseThrow(
-            () -> new ResourceNotFoundException(entityName + " " + id + " not found!")
-        );
+            .orElseThrow(() -> new ResourceNotFoundException(entityName + " " + id + " not found!"));
+
+        if (codeExtractor != null && codeExistsChecker != null && currentEntityCodeExtractor != null) {
+            String newCode = codeExtractor.apply(requestObject);
+            String currentCode = currentEntityCodeExtractor.apply(entity);
+
+            if (newCode != null && !newCode.equals(currentCode) && codeExistsChecker.apply(newCode)) {
+                throw new InvalidItemCodeException(entityName + " with code \"" + newCode + "\" already exists!");
+            }
+        }
 
         updateFunction.accept(requestObject, entity);
         saveFunction.accept(entity);
 
         return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(entity);
+            .status(HttpStatus.OK)
+            .body(entity);
     }
 
     public static <E> ResponseEntity<String> deleteEntityResponse(

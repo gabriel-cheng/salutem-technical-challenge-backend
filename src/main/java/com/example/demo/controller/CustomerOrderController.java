@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.controller.responses.ResponseUtils;
 import com.example.demo.domain.customer.Customer;
 import com.example.demo.domain.customer.CustomerRepository;
 import com.example.demo.domain.customer_order.CustomerOrder;
@@ -37,8 +36,10 @@ import com.example.demo.domain.hamburger.HamburgerRepository;
 import com.example.demo.domain.ingredient.Ingredient;
 import com.example.demo.domain.ingredient.IngredientRepository;
 import com.example.demo.exceptions.InvalidAdditionalIngredientException;
+import com.example.demo.exceptions.InvalidItemCodeException;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.services.CustomerOrderService;
+import com.example.demo.utils.ResponseUtils;
 
 @RestController
 @RequestMapping("/customer_order")
@@ -99,106 +100,103 @@ public class CustomerOrderController {
     @PostMapping
     public ResponseEntity<String> registerNewCustomerOrder(
         @RequestBody @Validated RequestCustomerOrder customerOrder
-    ) throws ResourceNotFoundException, InvalidAdditionalIngredientException {
-        CustomerOrder newCustomerOrder = new CustomerOrder(customerOrder);
-        Customer customerFound = customerRepository.findById(customerOrder.customer_id())
-            .orElseThrow(() -> new ResourceNotFoundException("Customer not found!"));
-
-        newCustomerOrder.setCustomer(customerFound);
-        
-        if(
-            customerOrder.hamburger_id().isEmpty() &&
-                customerOrder.drink_id().isEmpty()
-        ) {
-            return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body("To generate an order, you need at least one item");
-        }
-
-        List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
-        for (String hamburger_id : customerOrder.hamburger_id()) {
-            Hamburger hamburgerFound = hamburgerRepository.findById(hamburger_id)
-                .orElseThrow(() -> new ResourceNotFoundException("Hamburger not found!"));
-            
-            Hamburger hamburger = hamburgerFound;
-
-            CustomerOrderItemHamburger customerOrderItemHamburger = new CustomerOrderItemHamburger();
-            customerOrderItemHamburger.setHamburger(hamburger);
-            customerOrderItemHamburger.setCustomerOrder(newCustomerOrder);
-
-            hamburgers.add(customerOrderItemHamburger);
-            
-            newCustomerOrder.setHamburgers(hamburgers);
-        }
-        
-        List<CustomerOrderItemDrink> drinks = new ArrayList<>();
-        for (String drink_id : customerOrder.drink_id()) {
-            Drink drinkFound = drinkRepository.findById(drink_id)
-                .orElseThrow(() -> new ResourceNotFoundException("Drink not found!"));
-
-            CustomerOrderItemDrink customerOrderItemDrink = new CustomerOrderItemDrink();
-            customerOrderItemDrink.setDrink(drinkFound);
-            customerOrderItemDrink.setCustomerOrder(newCustomerOrder);
-            drinks.add(customerOrderItemDrink);
-        }
-
-        List<CustomerOrderObservations> observations = new ArrayList<>();
-        for (String observation : customerOrder.observations()) {
-            CustomerOrderObservations customerOrderObservations = new CustomerOrderObservations();
-            customerOrderObservations.setCustomer_order_observation(observation);
-            customerOrderObservations.setCustomerOrder(newCustomerOrder);
-            observations.add(customerOrderObservations);
-        }
-
-        List<CustomerOrderAdditional> additional = new ArrayList<>();
-        for (String ingredient_id : customerOrder.additional()) {
-            Ingredient ingredientFound = ingredientRepository.findById(ingredient_id)
-                .orElseThrow(() -> new ResourceNotFoundException("Ingredient not found!"));
-
-            if (!"yes".equalsIgnoreCase(ingredientFound.getAdditional_flag())) {
-                throw new InvalidAdditionalIngredientException(
-                    "Ingredient " + ingredient_id + " is not an additional item."
-                );
+    ) {
+        try {
+            boolean existsByCode = customerOrderRepository.existsByCode(customerOrder.code());
+            if (existsByCode) {
+                throw new InvalidItemCodeException("There is already an order with code " + customerOrder.code());
             }
 
-            CustomerOrderAdditional CustomerOrderAdditional = new CustomerOrderAdditional();
-            CustomerOrderAdditional.setIngredient(ingredientFound);
-            CustomerOrderAdditional.setCustomerOrder(newCustomerOrder);
-            additional.add(CustomerOrderAdditional);
+            if (
+                customerOrder.hamburger_id().isEmpty() &&
+                customerOrder.drink_id().isEmpty()
+            ) {
+                return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("To generate an order, you need at least one item.");
+            }
+
+            Customer customerFound = customerRepository.findById(customerOrder.customer_id())
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found!"));
+
+            CustomerOrder newCustomerOrder = new CustomerOrder(customerOrder);
+            newCustomerOrder.setCustomer(customerFound);
+
+            List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
+            for (String hamburger_id : customerOrder.hamburger_id()) {
+                Hamburger hamburgerFound = hamburgerRepository.findById(hamburger_id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Hamburger not found!"));
+
+                CustomerOrderItemHamburger item = new CustomerOrderItemHamburger();
+                item.setHamburger(hamburgerFound);
+                item.setCustomerOrder(newCustomerOrder);
+                hamburgers.add(item);
+            }
+            newCustomerOrder.setHamburgers(hamburgers);
+
+            List<CustomerOrderItemDrink> drinks = new ArrayList<>();
+            for (String drink_id : customerOrder.drink_id()) {
+                Drink drinkFound = drinkRepository.findById(drink_id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Drink not found!"));
+
+                CustomerOrderItemDrink item = new CustomerOrderItemDrink();
+                item.setDrink(drinkFound);
+                item.setCustomerOrder(newCustomerOrder);
+                drinks.add(item);
+            }
+            newCustomerOrder.setDrinks(drinks);
+
+            List<CustomerOrderObservations> observations = new ArrayList<>();
+            for (String obs : customerOrder.observations()) {
+                CustomerOrderObservations observation = new CustomerOrderObservations();
+                observation.setCustomer_order_observation(obs);
+                observation.setCustomerOrder(newCustomerOrder);
+                observations.add(observation);
+            }
+
+            List<CustomerOrderAdditional> additional = new ArrayList<>();
+            for (String ingredient_id : customerOrder.additional()) {
+                Ingredient ingredient = ingredientRepository.findById(ingredient_id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Ingredient not found!"));
+
+                if (!"yes".equalsIgnoreCase(ingredient.getAdditional_flag())) {
+                    throw new InvalidAdditionalIngredientException("Ingredient " + ingredient_id + " is not an additional item.");
+                }
+
+                CustomerOrderAdditional add = new CustomerOrderAdditional();
+                add.setIngredient(ingredient);
+                add.setCustomerOrder(newCustomerOrder);
+                additional.add(add);
+            }
+
+            customerOrderRepository.save(newCustomerOrder);
+            customerOrderItemHamburgerRepository.saveAll(hamburgers);
+            customerOrderItemDrinkRepository.saveAll(drinks);
+            customerOrderObservationsRepository.saveAll(observations);
+            customerOrderAdditionalRepository.saveAll(additional);
+
+            return ResponseEntity.status(HttpStatus.OK).body("Order created successfully!");
+
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        } catch (InvalidItemCodeException | InvalidAdditionalIngredientException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
-        
-        newCustomerOrder.setDrinks(drinks);
-        
-        customerOrderRepository.save(newCustomerOrder);
-
-        customerOrderItemHamburgerRepository.saveAll(hamburgers);
-        customerOrderItemDrinkRepository.saveAll(drinks);
-        customerOrderObservationsRepository.saveAll(observations);
-        customerOrderAdditionalRepository.saveAll(additional);
-
-        return ResponseEntity
-        .status(HttpStatus.OK)
-        .body("Order created successfully!");
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateCustomerOrder(
         @PathVariable String id,
         @RequestBody @Validated RequestCustomerOrder customerOrder
-    ) {
+    ) throws InvalidItemCodeException {
         try {
             customerOrderService.updateCustomerOrder(id, customerOrder);
             return ResponseEntity.ok("Order updated successfully!");
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        } catch (InvalidAdditionalIngredientException ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An unexpected error occurred. Please, try again later!");
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An unexpected error occurred. Please, try again later!");
+        } catch (InvalidAdditionalIngredientException | IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
         }
     }
 

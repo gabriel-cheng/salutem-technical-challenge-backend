@@ -14,11 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.controller.responses.ResponseUtils;
 import com.example.demo.domain.ingredient.Ingredient;
 import com.example.demo.domain.ingredient.IngredientRepository;
 import com.example.demo.domain.ingredient.RequestIngredient;
+import com.example.demo.exceptions.InvalidItemCodeException;
 import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.utils.ResponseUtils;
 
 @RestController
 @RequestMapping("/ingredient")
@@ -47,12 +48,14 @@ public class IngredientController {
     @PostMapping
     public ResponseEntity<String> registerNewIngredient(
         @RequestBody @Validated RequestIngredient ingredient
-    ) {
+    ) throws InvalidItemCodeException {
         return ResponseUtils.registerNewEntity(
             ingredient,
             req -> new Ingredient(req),
             ingredientRepository::save,
-            "Ingredient"
+            "Ingredient",
+            RequestIngredient::code,
+            code -> ingredientRepository.existsByCode(code)
         );
     }
 
@@ -60,7 +63,7 @@ public class IngredientController {
     public ResponseEntity<Ingredient> updateIngredient(
         @RequestBody @Validated RequestIngredient ingredient,
         @PathVariable String id
-    ) throws ResourceNotFoundException {
+    ) throws ResourceNotFoundException, InvalidItemCodeException {
         return ResponseUtils.updateEntity(
             ingredient,
             () -> ingredientRepository.findById(id),
@@ -72,7 +75,10 @@ public class IngredientController {
             },
             ingredientRepository::save,
             "Ingredient",
-            id
+            id,
+            RequestIngredient::code,
+            code -> ingredientRepository.existsByCodeAndIngredientIdNot(code, id),
+            entity -> entity.getCode()
         );
     }
 

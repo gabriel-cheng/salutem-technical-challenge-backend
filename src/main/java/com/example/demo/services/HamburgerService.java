@@ -14,6 +14,7 @@ import com.example.demo.domain.hamburger_ingredients.HamburgerIngredients;
 import com.example.demo.domain.hamburger_ingredients.HamburgerIngredientsRepository;
 import com.example.demo.domain.ingredient.Ingredient;
 import com.example.demo.domain.ingredient.IngredientRepository;
+import com.example.demo.exceptions.InvalidItemCodeException;
 import com.example.demo.exceptions.ResourceNotFoundException;
 
 @Service
@@ -35,10 +36,17 @@ public class HamburgerService {
 
     @Transactional
     public void updateHamburger(String id, RequestHamburger request)
-            throws ResourceNotFoundException, IllegalArgumentException {
+            throws ResourceNotFoundException, InvalidItemCodeException, IllegalArgumentException {
 
         Hamburger hamburger = hamburgerRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Hamburger " + id + " not found."));
+
+        if (request.code() != null && !request.code().isBlank() && !request.code().equals(hamburger.getCode())) {
+            boolean codeExists = hamburgerRepository.existsByCodeAndHamburgerIdNot(request.code(), id);
+            if (codeExists) {
+                throw new InvalidItemCodeException("Hamburger with code '" + request.code() + "' already exists!");
+            }
+        }
 
         if (request.ingredients_id() == null || request.ingredients_id().isEmpty()) {
             throw new IllegalArgumentException("Ingredients can't be empty.");

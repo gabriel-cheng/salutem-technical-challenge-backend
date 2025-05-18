@@ -6,6 +6,7 @@ import com.example.demo.domain.hamburger_ingredients.HamburgerIngredients;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,11 +25,12 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of="hamburger_id")
+@EqualsAndHashCode(of="hamburgerId")
 public class Hamburger {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
-    private String hamburger_id;
+    @Column(name="hamburger_id")
+    private String hamburgerId;
 
     private String code;
 

@@ -18,5 +18,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-}
+    @ExceptionHandler(InvalidItemCodeException.class)
+    public ResponseEntity<String> handleInvalidItemCodeException(InvalidItemCodeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 
+}

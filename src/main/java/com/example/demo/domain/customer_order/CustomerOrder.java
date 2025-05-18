@@ -11,6 +11,7 @@ import com.example.demo.domain.customer_order_observations.CustomerOrderObservat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,11 +32,12 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of="customer_order_id")
+@EqualsAndHashCode(of="customerOrderId")
 public class CustomerOrder {
 
     @Id @GeneratedValue(strategy = GenerationType.UUID)
-    private String customer_order_id;
+    @Column(name="customer_order_id")
+    private String customerOrderId;
 
     private String code;
 

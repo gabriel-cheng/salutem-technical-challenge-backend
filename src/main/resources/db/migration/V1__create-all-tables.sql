@@ -1,6 +1,6 @@
 CREATE TABLE drink(
     drink_id TEXT PRIMARY KEY UNIQUE NOT NULL,
-    code TEXT NOT NULL,
+    code TEXT UNIQUE NOT NULL,
     description TEXT NOT NULL,
     unity_price FLOAT NOT NULL,
     sugar_flag TEXT NOT NULL
@@ -8,7 +8,7 @@ CREATE TABLE drink(
 
 CREATE TABLE ingredient(
     ingredient_id TEXT PRIMARY KEY UNIQUE NOT NULL,
-    code TEXT NOT NULL,
+    code TEXT UNIQUE NOT NULL,
     description TEXT NOT NULL,
     unity_price FLOAT NOT NULL,
     additional_flag TEXT NOT NULL
@@ -16,7 +16,7 @@ CREATE TABLE ingredient(
 
 CREATE TABLE hamburger(
     hamburger_id TEXT PRIMARY KEY UNIQUE NOT NULL,
-    code TEXT NOT NULL,
+    code TEXT UNIQUE NOT NULL,
     description TEXT NOT NULL,
     unity_price FLOAT NOT NULL
 );
@@ -40,7 +40,7 @@ CREATE TABLE hamburger_ingredients(
 
 CREATE TABLE customer_order(
     customer_order_id TEXT PRIMARY KEY UNIQUE NOT NULL,
-    code TEXT NOT NULL,
+    code TEXT UNIQUE NOT NULL,
     description TEXT NOT NULL,
     customer_id TEXT NOT NULL,
     created_at TEXT NOT NULL,
