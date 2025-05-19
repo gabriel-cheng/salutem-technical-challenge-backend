@@ -72,7 +72,6 @@ public class CustomerOrder {
         this.code = requestCustomerOrder.code();
         this.description = requestCustomerOrder.description();
         this.created_at = requestCustomerOrder.created_at();
-        this.final_price = requestCustomerOrder.final_price();
     }
 
 }

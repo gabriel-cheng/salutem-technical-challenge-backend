@@ -81,9 +81,10 @@ public class CustomerOrderService {
             throw new InvalidItemCodeException("There is already an order with code " + request.code());
         }
 
+        double final_price = existingOrder.getFinal_price();
+
         existingOrder.setCustomer(customer);
         existingOrder.setCode(request.code());
-        existingOrder.setFinal_price(request.final_price());
         existingOrder.setCreated_at(request.created_at());
         existingOrder.setDescription(request.description());
 
@@ -100,6 +101,8 @@ public class CustomerOrderService {
             item.setHamburger(hamburger);
             item.setCustomerOrder(existingOrder);
             hamburgers.add(item);
+
+            final_price += hamburger.getUnity_price();
         }
 
         List<CustomerOrderItemDrink> drinks = new ArrayList<>();
@@ -110,6 +113,8 @@ public class CustomerOrderService {
             item.setDrink(drink);
             item.setCustomerOrder(existingOrder);
             drinks.add(item);
+
+            final_price += drink.getUnity_price();
         }
 
         List<CustomerOrderAdditional> additional = new ArrayList<>();
@@ -127,6 +132,8 @@ public class CustomerOrderService {
             add.setIngredient(ingredient);
             add.setCustomerOrder(existingOrder);
             additional.add(add);
+
+            final_price += ingredient.getUnity_price();
         }
 
         List<CustomerOrderObservations> observations = request.observations().stream()
@@ -136,6 +143,8 @@ public class CustomerOrderService {
                 o.setCustomer_order_observation(obs);
                 return o;
             }).collect(Collectors.toList());
+
+        existingOrder.setFinal_price(final_price);
 
         customerOrderRepository.save(existingOrder);
         hamburgerItemRepository.saveAll(hamburgers);

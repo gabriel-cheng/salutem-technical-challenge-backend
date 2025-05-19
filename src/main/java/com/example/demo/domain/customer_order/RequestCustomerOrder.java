@@ -7,7 +7,6 @@ public record RequestCustomerOrder(
     String description,
     String customer_id,
     String created_at,
-    double final_price,
     List<String> observations,
     List<String> hamburger_id,
     List<String> drink_id,

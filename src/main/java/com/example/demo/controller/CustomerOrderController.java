@@ -122,6 +122,8 @@ public class CustomerOrderController {
             CustomerOrder newCustomerOrder = new CustomerOrder(customerOrder);
             newCustomerOrder.setCustomer(customerFound);
 
+            double final_price = 0;
+
             List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
             for (String hamburger_id : customerOrder.hamburger_id()) {
                 Hamburger hamburgerFound = hamburgerRepository.findById(hamburger_id)
@@ -131,6 +133,8 @@ public class CustomerOrderController {
                 item.setHamburger(hamburgerFound);
                 item.setCustomerOrder(newCustomerOrder);
                 hamburgers.add(item);
+
+                final_price += hamburgerFound.getUnity_price();
             }
             newCustomerOrder.setHamburgers(hamburgers);
 
@@ -143,6 +147,8 @@ public class CustomerOrderController {
                 item.setDrink(drinkFound);
                 item.setCustomerOrder(newCustomerOrder);
                 drinks.add(item);
+
+                final_price += drinkFound.getUnity_price();
             }
             newCustomerOrder.setDrinks(drinks);
 
@@ -167,7 +173,11 @@ public class CustomerOrderController {
                 add.setIngredient(ingredient);
                 add.setCustomerOrder(newCustomerOrder);
                 additional.add(add);
+
+                final_price += ingredient.getUnity_price();
             }
+
+            newCustomerOrder.setFinal_price(final_price);
 
             customerOrderRepository.save(newCustomerOrder);
             customerOrderItemHamburgerRepository.saveAll(hamburgers);
