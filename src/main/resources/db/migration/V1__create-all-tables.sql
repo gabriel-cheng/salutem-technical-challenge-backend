@@ -36,6 +36,7 @@ CREATE TABLE hamburger_ingredients(
     REFERENCES hamburger(hamburger_id),
     CONSTRAINT fk_ingredient FOREIGN KEY(ingredient_id)
     REFERENCES ingredient(ingredient_id)
+    ON DELETE CASCADE
 );
 
 CREATE TABLE customer_order(
@@ -55,6 +56,7 @@ CREATE TABLE customer_order_observations(
     customer_order_observation TEXT NOT NULL,
     CONSTRAINT fk_customer_order_items FOREIGN KEY(customer_order_id)
     REFERENCES customer_order(customer_order_id)
+    ON DELETE CASCADE
 );
 
 CREATE TABLE customer_order_item_hamburger(
@@ -65,6 +67,7 @@ CREATE TABLE customer_order_item_hamburger(
     REFERENCES customer_order(customer_order_id),
     CONSTRAINT fk_hamburger_items FOREIGN KEY(hamburger_id)
     REFERENCES hamburger(hamburger_id)
+    ON DELETE CASCADE
 );
 
 CREATE TABLE customer_order_item_drink(
@@ -75,6 +78,7 @@ CREATE TABLE customer_order_item_drink(
     REFERENCES customer_order(customer_order_id),
     CONSTRAINT fk_drink_items FOREIGN KEY(drink_id)
     REFERENCES drink(drink_id)
+    ON DELETE CASCADE
 );
 
 CREATE TABLE customer_order_additional(
@@ -83,4 +87,5 @@ CREATE TABLE customer_order_additional(
     ingredient TEXT NOT NULL,
     CONSTRAINT fk_ingredient FOREIGN KEY(ingredient)
     REFERENCES ingredient(ingredient_id)
+    ON DELETE CASCADE
 );
