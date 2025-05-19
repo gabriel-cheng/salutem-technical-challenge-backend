@@ -27,7 +27,6 @@
 	"code": "customer_order_code",
 	"description": "customer_order_description",
 	"created_at": "customer_order_created_at",
-	"final_price": 00.00,
 	"customer_id": "customer_id",
 	"observations": ["customer_order_observation"],
 	"hamburger_id": ["hamburger_id"],
