@@ -53,11 +53,11 @@ public class CustomerOrder {
     private Customer customer;
 
     @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties({"customerOrder"})
+    @JsonIgnoreProperties({"customerOrder", "customer_order_item_hamburger_id"})
     private List<CustomerOrderItemHamburger> hamburgers = new ArrayList<>();
 
     @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties({"customerOrder"})
+    @JsonIgnoreProperties({"customerOrder", "customer_order_item_drink_id"})
     private List<CustomerOrderItemDrink> drinks = new ArrayList<>();
 
     @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL, orphanRemoval = true)

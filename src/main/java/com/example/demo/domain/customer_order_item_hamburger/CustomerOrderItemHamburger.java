@@ -2,6 +2,7 @@ package com.example.demo.domain.customer_order_item_hamburger;
 
 import com.example.demo.domain.customer_order.CustomerOrder;
 import com.example.demo.domain.hamburger.Hamburger;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,6 +35,7 @@ public class CustomerOrderItemHamburger {
 
     @ManyToOne
     @JoinColumn(name="hamburger_id")
+    @JsonIgnoreProperties({"ingredients"})
     private Hamburger hamburger;
 
     public CustomerOrderItemHamburger(RequestCustomerOrderItemHamburger requestCustomerOrderItemDrink) {
